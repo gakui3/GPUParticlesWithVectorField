@@ -1,0 +1,47 @@
+﻿#pragma kernel CSMain
+#include "Assets/CgIncludes/Noise.cginc"
+#include "Assets/CgIncludes/Random.cginc"
+#include "UnityCG.cginc" 
+
+struct Particle{
+	float3 position;
+	float3 velocity;
+	float4 color;
+};
+
+int StripCount;
+RWStructuredBuffer<int> IndexsBuffer;
+StructuredBuffer<Particle> ParticlesBuffer;
+
+float3 to3D (int idx)
+{
+	int Max = StripCount;
+	int z = idx / (Max * Max);
+	idx -= (z * Max * Max);
+	int y = idx / Max;
+	int x = idx % Max;
+	return float3 (x, y, z);
+}
+
+int to1D( int x, int y, int z, int Max ) {
+    return (z * Max * Max) + (y * Max) + x;
+}
+
+[numthreads(8,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	Particle p = ParticlesBuffer[id.x];
+
+	float3 pos = p.position;
+
+	if(pos.x < 0 || pos.x > StripCount || 
+		pos.y < 0 || pos.y > StripCount || 
+		pos.z < 0 || pos.z > StripCount){
+		return;
+	}
+
+	uint3 i = uint3(ceil(p.position));
+	int val = to1D(i.x, i.y, i.z, StripCount);
+
+	IndexsBuffer[val] = 1;
+}

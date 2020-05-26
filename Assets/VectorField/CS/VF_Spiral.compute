@@ -1,0 +1,24 @@
+﻿#pragma kernel CSMain
+
+#include "UnityCG.cginc"
+#include "Assets/CgIncludes/Noise.cginc"
+
+
+struct VectorField
+{
+	float3 position;
+	float3 velocity;
+	float4 GridSize;
+};
+
+RWStructuredBuffer<VectorField> _VectorField;
+float _dTime;
+float _Strength;
+float _Scale;
+
+[numthreads(32,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float3 pos = _VectorField[id.x].position; 
+	_VectorField[id.x].velocity += float3(-pos.z, 0, pos.x) * _Scale * 0.1;
+} 

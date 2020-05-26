@@ -1,0 +1,1 @@
+#define testes float4 pos : POSITION

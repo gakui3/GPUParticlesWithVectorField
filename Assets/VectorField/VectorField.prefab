@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1131798793480124}
+  m_IsPrefabParent: 1
+--- !u!1 &1131798793480124
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4611428125130990}
+  - component: {fileID: 114163611014961450}
+  - component: {fileID: 114091127880910254}
+  m_Layer: 0
+  m_Name: VectorField
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4611428125130990
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1131798793480124}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114091127880910254
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1131798793480124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a3dcd88cb356ed4db904d79e64c945b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updater: {fileID: 7200000, guid: 6dc6dd58b5922e64a85184eac215f5f2, type: 3}
+  MCBufferUpdater: {fileID: 7200000, guid: 439e3713593ed4546b2308050103b74a, type: 3}
+  renderer: {fileID: 4800000, guid: bfdae7dfd4bd28f48befc49bc5c7acde, type: 3}
+  vectorfield: {fileID: 114163611014961450}
+  particleCount: 200000
+  color:
+    r: 1
+    g: 0
+    b: 0
+    a: 0
+--- !u!114 &114163611014961450
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1131798793480124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f2fed0c71b4a66498efbcb2a9090d5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  VectorFieldRenderer: {fileID: 4800000, guid: 7532babd3cfb2bd40a54bd98c3572dfd, type: 3}
+  initVFBuffer: {fileID: 7200000, guid: cd0426b43f552bd4e9a42c8a96f5d445, type: 3}
+  vfMotions:
+  - vf: {fileID: 7200000, guid: d90b0a4a41bd28b48951ae758d16cfe5, type: 3}
+    scale: 0.3
+    strength: 0.2
+    dispachCnt: 0
+  GridIndex: {x: 20, y: 20, z: 20}
+  SellSize: 5
+  visible: 1

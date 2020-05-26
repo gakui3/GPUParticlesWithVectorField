@@ -1,0 +1,26 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+#include "UnityCG.cginc"
+#include "Assets/CgIncludes/Noise.cginc"
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+struct VectorField
+{
+	float3 position;
+	float3 velocity;
+	float4 GridSize;
+};
+
+RWStructuredBuffer<VectorField> VFBuffer;
+float _dTime;
+float _Strength;
+float _Scale;
+
+[numthreads(32,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	VFBuffer[id.x].velocity = float3(0, 0, 0);
+}

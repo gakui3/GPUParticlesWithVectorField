@@ -1,0 +1,28 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+#include "UnityCG.cginc"
+#include "Assets/CgIncludes/Noise.cginc"
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+struct VectorField
+{
+	float3 position;
+	float3 velocity;
+	float4 GridSize;
+};
+
+RWStructuredBuffer<VectorField> _VectorField;
+float _dTime;
+float _Strength;
+float _Scale;
+
+[numthreads(32,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float3 pos = _VectorField[id.x].position;
+
+	_VectorField[id.x].velocity += snoise3D((pos + (float3)_dTime)* _Strength) * _Scale;
+}

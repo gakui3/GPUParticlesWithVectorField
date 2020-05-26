@@ -1,0 +1,117 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Update
+#pragma kernel BitonicSort
+
+#include "UnityCG.cginc"
+#include "Assets/CgIncludes/Random.cginc"
+
+struct Particle{
+	float3 position;
+	float3 velocity;
+	float4 color;
+};
+
+struct VectorField
+{
+	float3 position;
+	float3 velocity;
+	float4 GridSize;
+};
+
+StructuredBuffer<VectorField> VFBuffer;
+RWStructuredBuffer<Particle> ParticlesBuffer;
+float4 Pivot;
+float dTime;
+
+int stepno;
+int offset;
+int stage;
+//float4 CameraPos;
+float4x4 vMatrix;
+
+float sqrMagnitude(float3 v, float3 k){
+
+	float3 _v = k - v;
+	float val = dot(_v, _v);
+
+	return val;
+}
+
+[numthreads(32,1,1)]
+void Update (uint3 id : SV_DispatchThreadID)
+{
+	float4 GridSize = VFBuffer[0].GridSize;
+	float3 vel = ParticlesBuffer[id.x].velocity;
+	float3 pos = ParticlesBuffer[id.x].position;
+	float4x4 shiftMat = float4x4(1, 0, 0, GridSize.x*GridSize.w*0.5,
+								 0, 1, 0, GridSize.y*GridSize.w*0.5,
+								 0, 0, 1, GridSize.z*GridSize.w*0.5,
+								 0, 0, 0, 1);
+
+	//vfbufferのindexは0始まりだから
+	float3 p = mul(shiftMat, float4(pos, 1)).xyz;
+
+	//particleのpositionをindexのためにclamp
+	p = floor(p/GridSize.w);
+
+	//positionから1次元のindexを求める
+	int index = (int)((p.z * GridSize.x * GridSize.y) + (p.y * GridSize.x) + p.x);
+
+	//indexはあってそう
+	vel += VFBuffer[index].velocity;
+	float3 npos = pos + vel * dTime;
+
+	//field外に出る or 収束したら　中心に戻す 
+	if(abs(npos.x)>=GridSize.x*GridSize.w*0.5 || abs(npos.y)>=GridSize.y*GridSize.w*0.5 || abs(npos.z)>=GridSize.z*GridSize.w*0.5 ){
+		npos = (srand3(npos.xz, npos.y) - 0.5) * 30 + Pivot.xyz;
+		vel = ((rand3(npos.xz) - (float3)0.5)) * 10;
+	}
+
+	ParticlesBuffer[id.x].position = npos;
+	//ParticlesBuffer[id.x].color = float4(VFBuffer[index].velocity, 1);
+	ParticlesBuffer[id.x].color = float4(1, 1, 1, 1);
+	ParticlesBuffer[id.x].velocity = vel;
+}
+
+[numthreads(8,8,1)]
+void BitonicSort (uint3 id : SV_DispatchThreadID)
+{
+	//2d → 1dに変換する
+	//int elem1d = id.x;
+	int elem1d = id.y * 32 + id.x;
+
+	//すべてのidが-1 or 1に分類される
+	int csign = (fmod(elem1d, stage) < offset) ? 1 : -1;
+
+	//これも同じように-1 or 1に分類される
+	float cdir  = (fmod(floor(elem1d/stepno), 2) <= 0.5) ? 1 : -1;
+
+	//z値を取り出す
+	float val0 = ParticlesBuffer[elem1d].position.z;
+
+
+	//id.xと比べるid
+	int adr1d = csign * offset + elem1d;
+
+
+	float val1 = ParticlesBuffer[adr1d].position.z;
+	//float val1 = sqrMagnitude(ParticlesBuffer[adr1d].position.z, CameraPos.z);
+	//float val1 = mul(vMatrix, float4(ParticlesBuffer[adr1d].position, 1)).z;
+
+
+	uint cmin = elem1d;
+	uint cmax = adr1d;
+
+	if(val0 > val1){
+		cmin = adr1d;
+		cmax = elem1d;
+	}
+
+	//uint cmin = (val0 < val1) ? elem1d  : adr1d;
+	//uint cmax = (val0 < val1) ? adr1d : elem1d;
+
+
+	uint dst = (csign == cdir) ? cmin : cmax;
+
+	ParticlesBuffer[elem1d] = ParticlesBuffer[dst];
+}
